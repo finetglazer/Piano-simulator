@@ -2,6 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import './App.css';
 import PianoEngine from './audio/PianoEngine';
 import PianoSampleLoader from './audio/PianoSampleLoader';
+import PianoKeyboard from './component/PianoKeyboard'
+import NoteVisualizer from './component/NoteVisualizer';
+import RecordingControls from './component/RecordingControls';
 import * as Tone from 'tone';
 
 function App() {
@@ -9,6 +12,7 @@ function App() {
     const [isLoading, setIsLoading] = useState(true);
     const [loadingStatus, setLoadingStatus] = useState('Initializing...');
     const [samplesLoaded, setSamplesLoaded] = useState(false);
+    const [activeNotes, setActiveNotes] = useState({});
 
     // Initialize piano when component mounts
     useEffect(() => {
@@ -73,21 +77,23 @@ function App() {
         };
     }, []);
 
-    // Function to play a test note
-    const playTestNote = useCallback(() => {
-        if (!pianoEngine) {
-            console.warn('Piano engine not initialized');
-            return;
-        }
+    // Custom pianoEngine wrapper to track active notes for visualization
+    const handleNoteOn = useCallback((note, velocity) => {
+        if (!pianoEngine || !samplesLoaded) return;
 
-        if (!samplesLoaded) {
-            console.warn('Samples not loaded yet');
-            return;
-        }
+        setActiveNotes(prev => ({ ...prev, [note]: true }));
+        pianoEngine.playNote(note, velocity);
+    }, [pianoEngine, samplesLoaded]);
 
-        console.log('Playing test note C4');
-        pianoEngine.playNote('C4', 0.75);
-        setTimeout(() => pianoEngine.stopNote('C4'), 1000);
+    const handleNoteOff = useCallback((note) => {
+        if (!pianoEngine || !samplesLoaded) return;
+
+        setActiveNotes(prev => {
+            const updated = { ...prev };
+            delete updated[note];
+            return updated;
+        });
+        pianoEngine.stopNote(note);
     }, [pianoEngine, samplesLoaded]);
 
     return (
@@ -102,29 +108,18 @@ function App() {
                             {loadingStatus}
                         </div>
                     ) : (
-                        <>
-                            <div className="piano-placeholder">
-                                Piano Keyboard (Coming Soon)
-                            </div>
-                            <button
-                                onClick={playTestNote}
-                                disabled={!samplesLoaded}
-                                className="test-note-button"
-                            >
-                                Play Test Note (C4)
-                            </button>
-                        </>
+                        <PianoKeyboard
+                            pianoEngine={pianoEngine}
+                            onNoteOn={handleNoteOn}
+                            onNoteOff={handleNoteOff}
+                        />
                     )}
                 </div>
                 <div className="controls-container">
-                    <button className="control-button" disabled={isLoading}>Record</button>
-                    <button className="control-button" disabled={isLoading}>Stop</button>
-                    <button className="control-button" disabled={isLoading}>Save</button>
+                    <RecordingControls disabled={isLoading || !samplesLoaded} />
                 </div>
                 <div className="visualization-container">
-                    <div className="visualization-placeholder">
-                        Note Visualization (Coming Soon)
-                    </div>
+                    <NoteVisualizer activeNotes={activeNotes} />
                 </div>
             </main>
         </div>

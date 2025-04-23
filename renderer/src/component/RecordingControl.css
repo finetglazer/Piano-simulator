@@ -1,0 +1,112 @@
+.recording-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.recording-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.recording-indicator {
+    width: 12px;
+    height: 12px;
+    background-color: #e53935;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(229, 57, 53, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(229, 57, 53, 0);
+    }
+}
+
+.recording-time {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e53935;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.control-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.control-button:active {
+    transform: scale(0.97);
+}
+
+.control-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.record-button {
+    background-color: #e53935;
+    color: white;
+}
+
+.record-button:hover:not(:disabled) {
+    background-color: #d32f2f;
+}
+
+.stop-button {
+    background-color: #455a64;
+    color: white;
+}
+
+.stop-button:hover {
+    background-color: #37474f;
+}
+
+.save-button {
+    background-color: #2196f3;
+    color: white;
+}
+
+.save-button:hover:not(:disabled) {
+    background-color: #1976d2;
+}
+
+.recording-ready {
+    font-size: 14px;
+    color: #4caf50;
+    margin-top: 5px;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
