@@ -25,14 +25,19 @@ class PianoEngine {
             this.sampler = new Tone.Sampler({
                 urls: sampleMapping,
                 release: 1,
-                baseUrl: './samples/',
+                baseUrl: '/samples/', // Fix: Use absolute path with leading slash
                 onload: () => {
-                    console.log('Piano samples loaded');
+                    console.log('Piano samples loaded successfully');
                     this.isLoaded = true;
                     // Connect the sampler to the reverb effect
                     this.sampler.connect(this.reverb);
                 }
             }).toDestination();
+
+            // Add an additional error event listener
+            this.sampler.onerror = (error) => {
+                console.error('Sampler error:', error);
+            };
         } catch (error) {
             console.error('Error loading piano samples:', error);
         }
@@ -44,14 +49,22 @@ class PianoEngine {
             return;
         }
 
-        // Convert velocity (0-1) to volume in decibels
-        const velocityInDb = Tone.gainToDb(velocity);
-        this.sampler.triggerAttack(note, Tone.now(), velocity);
+        try {
+            // Convert velocity (0-1) to volume in decibels (this line wasn't being used)
+            // const velocityInDb = Tone.gainToDb(velocity);
+            this.sampler.triggerAttack(note, Tone.now(), velocity);
+        } catch (error) {
+            console.error('Error playing note:', note, error);
+        }
     }
 
     stopNote(note) {
         if (!this.isLoaded || !this.sampler) return;
-        this.sampler.triggerRelease(note, Tone.now());
+        try {
+            this.sampler.triggerRelease(note, Tone.now());
+        } catch (error) {
+            console.error('Error stopping note:', note, error);
+        }
     }
 
     // Method to handle sustain pedal

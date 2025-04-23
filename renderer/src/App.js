@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './App.css';
 import PianoEngine from './audio/PianoEngine';
 import PianoSampleLoader from './audio/PianoSampleLoader';
@@ -8,20 +8,26 @@ function App() {
     const [pianoEngine, setPianoEngine] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [loadingStatus, setLoadingStatus] = useState('Initializing...');
+    const [samplesLoaded, setSamplesLoaded] = useState(false);
 
     // Initialize piano when component mounts
     useEffect(() => {
+        let isMounted = true;
+
         async function initializePiano() {
             try {
-                setLoadingStatus('Starting audio engine...');
-                // Start Tone.js audio context
-                await Tone.start();
+                // First we need to wait for a user interaction to start audio
+                setLoadingStatus('Click anywhere to start audio engine...');
 
-                // Create the piano engine
+                // Only create the piano engine after Tone.js context is started
                 const engine = new PianoEngine();
-                setPianoEngine(engine);
+                if (isMounted) setPianoEngine(engine);
 
-                setLoadingStatus('Loading piano samples...');
+                // Wait for the reverb to be generated
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                if (isMounted) setLoadingStatus('Loading piano samples...');
+
                 // Create the sample loader
                 const sampleLoader = new PianoSampleLoader();
 
@@ -31,29 +37,58 @@ function App() {
                 // Load samples into the piano engine
                 await engine.loadSamples(sampleMapping);
 
-                setLoadingStatus('Ready!');
-                setIsLoading(false);
+                // Add a delay to ensure samples are loaded
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                if (isMounted) {
+                    setLoadingStatus('Ready to play!');
+                    setIsLoading(false);
+                    setSamplesLoaded(true);
+                }
             } catch (error) {
                 console.error('Failed to initialize piano:', error);
-                setLoadingStatus('Error initializing piano');
+                if (isMounted) setLoadingStatus(`Error: ${error.message}`);
             }
         }
 
-        initializePiano();
+        // When document is clicked, start audio context and initialization
+        const startAudio = async () => {
+            try {
+                await Tone.start();
+                console.log('Audio context started');
+                document.removeEventListener('click', startAudio);
+                initializePiano();
+            } catch (error) {
+                console.error('Could not start audio context:', error);
+                setLoadingStatus(`Error starting audio: ${error.message}`);
+            }
+        };
+
+        document.addEventListener('click', startAudio);
 
         // Cleanup when component unmounts
         return () => {
-            // Any cleanup code here
+            isMounted = false;
+            document.removeEventListener('click', startAudio);
         };
     }, []);
 
     // Function to play a test note
-    const playTestNote = () => {
-        if (pianoEngine && !isLoading) {
-            pianoEngine.playNote('C4', 0.75);
-            setTimeout(() => pianoEngine.stopNote('C4'), 1000);
+    const playTestNote = useCallback(() => {
+        if (!pianoEngine) {
+            console.warn('Piano engine not initialized');
+            return;
         }
-    };
+
+        if (!samplesLoaded) {
+            console.warn('Samples not loaded yet');
+            return;
+        }
+
+        console.log('Playing test note C4');
+        pianoEngine.playNote('C4', 0.75);
+        setTimeout(() => pianoEngine.stopNote('C4'), 1000);
+    }, [pianoEngine, samplesLoaded]);
 
     return (
         <div className="App">
@@ -71,7 +106,11 @@ function App() {
                             <div className="piano-placeholder">
                                 Piano Keyboard (Coming Soon)
                             </div>
-                            <button onClick={playTestNote}>
+                            <button
+                                onClick={playTestNote}
+                                disabled={!samplesLoaded}
+                                className="test-note-button"
+                            >
                                 Play Test Note (C4)
                             </button>
                         </>
