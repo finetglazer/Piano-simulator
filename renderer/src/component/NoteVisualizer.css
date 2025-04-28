@@ -6,15 +6,40 @@
     align-items: center;
     padding: 10px;
     box-sizing: border-box;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.visualizer-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 .visualizer-title {
     font-size: 18px;
     font-weight: bold;
-    margin-bottom: 15px;
     color: #444;
 }
 
+.visualizer-toggle-button {
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.visualizer-toggle-button:hover {
+    background-color: #3a5a8c;
+}
+
+/* Staff Notation */
 .staff-notation {
     width: 100%;
     height: 150px;
@@ -23,6 +48,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .staff {
@@ -32,6 +60,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding: 20px 0;
 }
 
 .staff-line {
@@ -39,6 +68,31 @@
     height: 1px;
     background-color: #000;
     position: relative;
+}
+
+.ledger-line {
+    width: 20px;
+    height: 1px;
+    background-color: #000;
+    position: absolute;
+    top: 50%;
+    left: 12%;
+}
+
+.treble-clef {
+    position: absolute;
+    left: 2%;
+    top: 25%;
+    font-size: 36px;
+    line-height: 0;
+}
+
+.bass-clef {
+    position: absolute;
+    left: 2%;
+    top: 65%;
+    font-size: 36px;
+    line-height: 0;
 }
 
 .notes-container {
@@ -49,66 +103,176 @@
     left: 0;
 }
 
-.note {
+.staff-note {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background-color: #000;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
     font-size: 6px;
     transform: translate(-50%, -50%);
-    transition: opacity 0.5s;
     z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.3s;
 }
 
 .note-name {
     display: none;
     position: absolute;
-    top: -15px;
+    top: -20px;
     white-space: nowrap;
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
-    padding: 2px 4px;
+    padding: 2px 6px;
     border-radius: 3px;
     font-size: 10px;
+    z-index: 10;
+    pointer-events: none;
 }
 
-.note:hover .note-name {
+.staff-note:hover .note-name {
     display: block;
 }
 
+/* Keyboard Visualization */
+.keyboard-visualization {
+    width: 100%;
+    height: 150px;
+    position: relative;
+    margin-bottom: 20px;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.mini-keyboard {
+    display: flex;
+    height: 100px;
+    width: 95%;
+    position: relative;
+}
+
+.mini-key {
+    height: 100%;
+    position: relative;
+    box-sizing: border-box;
+    border: 1px solid #aaa;
+    transition: background-color 0.2s;
+}
+
+.mini-key.white {
+    background-color: white;
+    width: calc(100% / 14); /* 14 white keys in the mini keyboard */
+    z-index: 1;
+    border-radius: 0 0 4px 4px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 5px;
+}
+
+.mini-key.black {
+    background-color: #222;
+    width: calc(100% / 14 * 0.6);
+    height: 60%;
+    z-index: 2;
+    margin-left: calc(100% / 14 * -0.3);
+    margin-right: calc(100% / 14 * -0.3);
+    border-radius: 0 0 3px 3px;
+}
+
+.mini-key.active {
+    background-color: #4a90e2;
+}
+
+.mini-key.white.active {
+    background-color: #a5d5fa;
+}
+
+.mini-key.black.active {
+    background-color: #2e5c8a;
+}
+
+.mini-key.recently-played {
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.8);
+}
+
+.mini-key-label {
+    font-size: 9px;
+    color: #555;
+    pointer-events: none;
+}
+
+/* Notes List */
 .notes-list {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    max-height: 80px;
-    overflow-y: auto;
+    flex-direction: column;
+    gap: 8px;
     width: 100%;
-    padding: 5px;
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 10px;
     box-sizing: border-box;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .note-entry {
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
+    background-color: white;
     border-radius: 4px;
-    padding: 5px 10px;
+    padding: 8px 12px;
     font-size: 14px;
-    transition: transform 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .note-entry:hover {
-    transform: scale(1.05);
-    background-color: #e6f7ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.note-entry-name {
+    font-weight: bold;
+}
+
+.note-entry-time {
+    font-size: 12px;
+    color: #888;
 }
 
 .no-notes {
     color: #888;
     font-style: italic;
-    padding: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Scrollbar styling */
+.notes-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notes-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.notes-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+.notes-list::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
 }

@@ -1,99 +1,147 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import './RecordingControl.css';
+import AudioRecorder from '../audio/AudioRecorder';
 import * as Tone from 'tone';
-import './PianoKeyboard.css';
 
 const RecordingControls = ({ disabled }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
-    const [audioRecorder, setAudioRecorder] = useState(null);
     const [audioBlob, setAudioBlob] = useState(null);
     const [recordingInterval, setRecordingInterval] = useState(null);
+    const [audioUrl, setAudioUrl] = useState(null);
+    const [audioInitialized, setAudioInitialized] = useState(false);
+
+    // Reference to our recorder
+    const recorderRef = useRef(null);
+    // Reference to audio element for testing playback
+    const audioRef = useRef(null);
 
     // Initialize the recorder when the component mounts
     useEffect(() => {
         const initializeRecorder = async () => {
             try {
-                // This is where we would initialize a proper recording solution
-                // For now, we're just simulating it with a placeholder
-                console.log('Recorder would be initialized here');
+                // Make sure Tone.js is started
+                await Tone.start();
 
-                // In a real implementation, we would use something like:
-                // const recorder = new WebAudioRecorder(Tone.getDestination().context);
-                // setAudioRecorder(recorder);
+                const recorder = new AudioRecorder();
+                await recorder.initialize();
+                recorderRef.current = recorder;
+                setAudioInitialized(true);
+                console.log('AudioRecorder component initialized');
             } catch (error) {
-                console.error('Failed to initialize recorder:', error);
+                console.error('Failed to initialize AudioRecorder component:', error);
             }
         };
 
-        initializeRecorder();
+        // Only initialize if Tone.js context is running
+        if (Tone.context.state === 'running') {
+            initializeRecorder();
+        } else {
+            // Add a click handler to initialize audio context
+            const handleClick = async () => {
+                await Tone.start();
+                initializeRecorder();
+                document.removeEventListener('click', handleClick);
+            };
+            document.addEventListener('click', handleClick);
+        }
 
         // Clean up on component unmount
         return () => {
             if (recordingInterval) {
                 clearInterval(recordingInterval);
             }
+
+            if (recorderRef.current) {
+                recorderRef.current.dispose();
+            }
+
+            if (audioUrl) {
+                URL.revokeObjectURL(audioUrl);
+            }
         };
     }, []);
 
-    const startRecording = () => {
-        if (disabled) return;
+    const startRecording = async () => {
+        if (disabled || !recorderRef.current || !audioInitialized) {
+            console.warn('Recording disabled or not initialized');
+            return;
+        }
 
-        // In a real implementation, we would start the recorder here
-        console.log('Starting recording...');
-        setIsRecording(true);
-        setRecordingTime(0);
+        // Clean up previous recording if exists
+        if (audioUrl) {
+            URL.revokeObjectURL(audioUrl);
+            setAudioUrl(null);
+        }
         setAudioBlob(null);
 
-        // Start a timer to track recording duration
-        const interval = setInterval(() => {
-            setRecordingTime(prev => prev + 1);
-        }, 1000);
+        // Reset recording state
+        setIsRecording(true);
+        setRecordingTime(0);
 
-        setRecordingInterval(interval);
+        // Set up recording completion callback
+        const onRecordingComplete = (blob) => {
+            console.log('Recording complete, blob size:', blob.size);
+            setAudioBlob(blob);
 
-        // In a real implementation, we would need to:
-        // 1. Create an audio stream from Tone.js output
-        // 2. Feed that stream to the recorder
-        // 3. Start the recorder
+            // Create an audio URL for testing playback
+            const url = URL.createObjectURL(blob);
+            setAudioUrl(url);
+        };
+
+        // Start recording
+        console.log('Starting recording with initialized recorder');
+        const success = await recorderRef.current.startRecording(onRecordingComplete);
+
+        if (success) {
+            console.log('Recording started successfully');
+            // Start a timer to track recording duration
+            const interval = setInterval(() => {
+                setRecordingTime(prev => prev + 1);
+            }, 1000);
+
+            setRecordingInterval(interval);
+        } else {
+            console.error('Failed to start recording');
+            setIsRecording(false);
+        }
     };
 
-    const stopRecording = async () => {
-        if (!isRecording) return;
+    const stopRecording = () => {
+        if (!isRecording || !recorderRef.current) {
+            console.warn('No recording to stop');
+            return;
+        }
 
+        console.log('Stopping recording');
         // Clear the recording timer
         if (recordingInterval) {
             clearInterval(recordingInterval);
             setRecordingInterval(null);
         }
 
-        console.log('Stopping recording...');
+        // Stop recording
+        recorderRef.current.stopRecording();
         setIsRecording(false);
-
-        // In a real implementation, we would:
-        // 1. Stop the recorder
-        // 2. Wait for the encoded data
-        // 3. Set the audio blob
-
-        // Simulate getting an audio blob after a delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // For demo, we'll pretend we have a recording
-        setAudioBlob(new Blob(['dummy-audio-data'], { type: 'audio/mp3' }));
     };
 
     const saveRecording = () => {
-        if (!audioBlob) return;
+        if (!audioBlob) {
+            console.warn('No recording to save');
+            return;
+        }
 
+        console.log('Saving recording, blob type:', audioBlob.type);
         // Create a download link for the audio blob
         const url = URL.createObjectURL(audioBlob);
-        const filename = `piano-recording-${new Date().toISOString().replace(/:/g, '-')}.mp3`;
+        const filename = `piano-recording-${new Date().toISOString().replace(/:/g, '-')}.webm`;
 
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
         a.click();
 
-        // Clean up the URL object
+        // Clean up the URL object (but keep our audioUrl for playback)
         URL.revokeObjectURL(url);
     };
 
@@ -118,7 +166,7 @@ const RecordingControls = ({ disabled }) => {
                     <button
                         className="control-button record-button"
                         onClick={startRecording}
-                        disabled={disabled}
+                        disabled={disabled || !audioInitialized}
                     >
                         Record
                     </button>
@@ -142,8 +190,14 @@ const RecordingControls = ({ disabled }) => {
 
             {audioBlob && !isRecording && (
                 <div className="recording-ready">
-                    Recording ready to download!
+                    Recording ready! <button className="test-playback-button" onClick={() => audioRef.current?.play()}>Test Playback</button>
+                    <span className="recording-note">(WebM Audio)</span>
                 </div>
+            )}
+
+            {/* Hidden audio element for testing playback */}
+            {audioUrl && (
+                <audio ref={audioRef} src={audioUrl} controls style={{ display: 'none' }} />
             )}
         </div>
     );
