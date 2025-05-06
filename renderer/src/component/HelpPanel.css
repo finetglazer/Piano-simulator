@@ -1,0 +1,268 @@
+.help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.help-panel {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 700px;
+    max-width: 90%;
+    max-height: 90vh;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    animation: slideIn 0.3s ease-out;
+}
+
+.help-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.help-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+}
+
+.close-button:hover {
+    color: #222;
+}
+
+.help-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.help-section {
+    margin-bottom: 24px;
+}
+
+.help-section h3 {
+    font-size: 18px;
+    margin: 0 0 12px 0;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.help-section p {
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+    color: #555;
+}
+
+.help-section ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.help-section li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #555;
+}
+
+.keyboard-layout {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.keyboard-row {
+    display: flex;
+    position: relative;
+    height: 60px;
+}
+
+.key {
+    position: relative;
+    width: 50px;
+    height: 60px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-right: 4px;
+}
+
+.key span {
+    font-size: 10px;
+    margin-top: 4px;
+    color: #777;
+    font-weight: normal;
+}
+
+.key.black {
+    background-color: #333;
+    color: #fff;
+    height: 45px;
+    margin-right: 4px;
+}
+
+.key.black span {
+    color: #bbb;
+}
+
+.control-keys {
+    margin-top: 10px;
+}
+
+.key.space {
+    width: 300px;
+    font-size: 16px;
+}
+
+.shortcuts-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.shortcuts-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.shortcuts-table tr:last-child td {
+    border-bottom: none;
+}
+
+.shortcuts-table kbd {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    display: inline-block;
+    font-family: monospace;
+    font-size: 12px;
+    padding: 3px 6px;
+    line-height: 1;
+    margin-right: 5px;
+}
+
+.help-footer {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #eaeaea;
+}
+
+.help-button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.help-button:hover {
+    background-color: #3a7bc8;
+}
+
+/* Dark theme styles */
+.dark-theme .help-panel {
+    background-color: #222;
+    color: #eee;
+}
+
+.dark-theme .help-header {
+    border-bottom-color: #333;
+}
+
+.dark-theme .help-header h2 {
+    color: #fff;
+}
+
+.dark-theme .close-button {
+    color: #aaa;
+}
+
+.dark-theme .close-button:hover {
+    color: #fff;
+}
+
+.dark-theme .help-section h3 {
+    color: #ddd;
+    border-bottom-color: #333;
+}
+
+.dark-theme .help-section p,
+.dark-theme .help-section li {
+    color: #bbb;
+}
+
+.dark-theme .key {
+    background-color: #333;
+    border-color: #444;
+    color: #ddd;
+}
+
+.dark-theme .key.black {
+    background-color: #111;
+}
+
+.dark-theme .key span {
+    color: #999;
+}
+
+.dark-theme .key.black span {
+    color: #777;
+}
+
+.dark-theme .shortcuts-table td {
+    border-bottom-color: #333;
+}
+
+.dark-theme .shortcuts-table kbd {
+    background-color: #333;
+    border-color: #444;
+    color: #ddd;
+}
+
+.dark-theme .help-footer {
+    border-top-color: #333;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
