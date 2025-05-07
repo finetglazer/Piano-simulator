@@ -4,12 +4,15 @@ import './SettingsPanel.css';
 
 const SettingsPanel = ({ pianoEngine, onSettingsChange, isOpen, onClose }) => {
     const [settings, setSettings] = useState(null);
+    const [volumeDisplay, setVolumeDisplay] = useState(75); // For real-time display
     const settingsStore = new SettingsStore();
 
     useEffect(() => {
         if (isOpen) {
             const loadedSettings = settingsStore.loadSettings();
             setSettings(loadedSettings);
+            // Initialize volume display
+            setVolumeDisplay(Math.round(loadedSettings.volume * 100));
         }
     }, [isOpen]);
 
@@ -19,15 +22,12 @@ const SettingsPanel = ({ pianoEngine, onSettingsChange, isOpen, onClose }) => {
 
             // Apply settings to the piano engine if available
             if (pianoEngine) {
-                // Update reverb
-                if (pianoEngine.reverb) {
-                    pianoEngine.reverb.wet.value = settings.reverbAmount;
-                }
-
-                // Update volume (we'd need to add a master volume to the piano engine)
-                if (pianoEngine.sampler) {
-                    pianoEngine.sampler.volume.value = Math.log10(settings.volume) * 20; // Convert to decibels
-                }
+                // Let the piano engine handle the settings update entirely
+                pianoEngine.updateSettings({
+                    volume: settings.volume,
+                    reverbWet: settings.reverbAmount,
+                });
+                console.log('Settings saved and applied to piano engine');
             }
 
             // Notify parent component
@@ -42,6 +42,26 @@ const SettingsPanel = ({ pianoEngine, onSettingsChange, isOpen, onClose }) => {
     const handleReset = () => {
         const defaultSettings = settingsStore.resetSettings();
         setSettings(defaultSettings);
+        // Update volume display
+        setVolumeDisplay(Math.round(defaultSettings.volume * 100));
+    };
+
+    const handleVolumeChange = (e) => {
+        const newVolume = parseFloat(e.target.value);
+        // Update settings
+        setSettings(prev => ({
+            ...prev,
+            volume: newVolume
+        }));
+        // Update display value
+        setVolumeDisplay(Math.round(newVolume * 100));
+
+        // Apply volume change immediately for better user experience
+        if (pianoEngine) {
+            pianoEngine.updateSettings({
+                volume: newVolume
+            });
+        }
     };
 
     const handleChange = (key, value) => {
@@ -74,9 +94,9 @@ const SettingsPanel = ({ pianoEngine, onSettingsChange, isOpen, onClose }) => {
                                 max="1"
                                 step="0.01"
                                 value={settings.volume}
-                                onChange={(e) => handleChange('volume', parseFloat(e.target.value))}
+                                onChange={handleVolumeChange}
                             />
-                            <span>{Math.round(settings.volume * 100)}%</span>
+                            <span>{volumeDisplay}%</span>
                         </div>
 
                         <div className="setting-control">
