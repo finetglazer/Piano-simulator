@@ -9,6 +9,7 @@ import SettingsPanel from './component/SettingsPanel';
 import HelpPanel from './component/HelpPanel';
 import SettingsStore from './utils/SettingsStore';
 import * as Tone from 'tone';
+// import PianoEngine from "./audio/PianoEngine";
 
 function App() {
     const [pianoEngine, setPianoEngine] = useState(null);
@@ -117,11 +118,8 @@ function App() {
             // Avoid capturing when typing in form elements
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
 
-            if (e.key === 'h' || e.key === 'H') {
-                setIsHelpOpen(prev => !prev);
-            } else if (e.key === 's' || e.key === 'S') {
-                setIsSettingsOpen(prev => !prev);
-            } else if (e.key === 'Escape') {
+            // Only handle Escape key - removed H and S shortcuts
+            if (e.key === 'Escape') {
                 setIsHelpOpen(false);
                 setIsSettingsOpen(false);
             }
