@@ -4,8 +4,8 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import './SheetMusicViewer.css';
 
-// Set worker path for PDF.js
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// Set the worker to use the SAME version as the PDF.js API (4.8.69)
+pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.js';
 
 const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
     const [pdfFile, setPdfFile] = useState(null);
@@ -67,7 +67,6 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
             setError(null);
 
             // Call the electron API to open file dialog
-            // We'll need to implement this in main.js and preload.js
             const filePath = await window.electron.selectPdf();
 
             if (filePath) {

@@ -50,6 +50,8 @@
   "dependencies": {
     "electron-is-dev": "^2.0.0",
     "electron-log": "^5.0.1",
-    "electron-updater": "^6.1.7"
+    "electron-updater": "^6.1.7",
+    "pdfjs-dist": "^3.4.120",
+    "react-pdf": "^7.1.2"
   }
 }
