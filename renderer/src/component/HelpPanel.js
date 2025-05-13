@@ -66,6 +66,18 @@ const HelpPanel = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="help-section">
+                        <h3>Sheet Music Viewer</h3>
+                        <ul>
+                            <li>Click <strong>Open Sheet Music</strong> to select a PDF file from your computer</li>
+                            <li>Press <strong>Enter</strong> or <strong>Right Arrow</strong> to go to the next page</li>
+                            <li>Press <strong>Left Arrow</strong> to go to the previous page</li>
+                            <li>Use the <strong>+</strong> and <strong>-</strong> buttons to adjust zoom level</li>
+                            <li>Click <strong>Hide</strong> to collapse the sheet music panel</li>
+                            <li>Your last opened sheet music and page position will be remembered between sessions</li>
+                        </ul>
+                    </div>
+
+                    <div className="help-section">
                         <h3>Recording</h3>
                         <ul>
                             <li>Click <strong>Record</strong> to start recording your performance</li>
@@ -93,16 +105,16 @@ const HelpPanel = ({ isOpen, onClose }) => {
                                 <td>Close dialogs</td>
                             </tr>
                             <tr>
-                                <td><kbd>H</kbd></td>
-                                <td>Toggle help panel</td>
+                                <td><kbd>Enter</kbd> / <kbd>→</kbd></td>
+                                <td>Next sheet music page</td>
                             </tr>
                             <tr>
-                                <td><kbd>S</kbd></td>
-                                <td>Open settings</td>
+                                <td><kbd>←</kbd></td>
+                                <td>Previous sheet music page</td>
                             </tr>
                             <tr>
-                                <td><kbd>R</kbd></td>
-                                <td>Start/stop recording</td>
+                                <td><kbd>Space</kbd></td>
+                                <td>Sustain pedal</td>
                             </tr>
                             </tbody>
                         </table>

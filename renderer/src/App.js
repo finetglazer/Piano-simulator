@@ -7,9 +7,9 @@ import NoteVisualizer from './component/NoteVisualizer';
 import RecordingControls from './component/RecordingControls';
 import SettingsPanel from './component/SettingsPanel';
 import HelpPanel from './component/HelpPanel';
+import SheetMusicViewer from './component/SheetMusicViewer'; // Import the new component
 import SettingsStore from './utils/SettingsStore';
 import * as Tone from 'tone';
-// import PianoEngine from "./audio/PianoEngine";
 
 function App() {
     const [pianoEngine, setPianoEngine] = useState(null);
@@ -21,6 +21,7 @@ function App() {
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [appSettings, setAppSettings] = useState(null);
     const [theme, setTheme] = useState('light');
+    const [isSheetMusicCollapsed, setIsSheetMusicCollapsed] = useState(false); // New state for sheet music panel
 
     // References for components that need to persist
     const settingsStoreRef = useRef(new SettingsStore());
@@ -31,7 +32,18 @@ function App() {
         const settings = settingsStoreRef.current.loadSettings();
         setAppSettings(settings);
         setTheme(settings.theme);
+
+        // Check if sheet music panel was previously collapsed
+        const sheetMusicCollapsed = localStorage.getItem('sheetMusicCollapsed');
+        if (sheetMusicCollapsed === 'true') {
+            setIsSheetMusicCollapsed(true);
+        }
     }, []);
+
+    // Save sheet music collapsed state
+    useEffect(() => {
+        localStorage.setItem('sheetMusicCollapsed', isSheetMusicCollapsed.toString());
+    }, [isSheetMusicCollapsed]);
 
     // Apply theme when it changes
     useEffect(() => {
@@ -173,6 +185,11 @@ function App() {
         pianoEngine.stopNote(note);
     }, [pianoEngine, samplesLoaded]);
 
+    // Toggle sheet music panel collapse state
+    const toggleSheetMusicCollapse = () => {
+        setIsSheetMusicCollapsed(!isSheetMusicCollapsed);
+    };
+
     return (
         <div className={`App ${theme === 'dark' ? 'dark-theme' : ''}`} ref={appContainerRef}>
             <header className="App-header">
@@ -195,6 +212,12 @@ function App() {
                 </div>
             </header>
             <main>
+                {/* Sheet Music Viewer Component */}
+                <SheetMusicViewer
+                    isCollapsed={isSheetMusicCollapsed}
+                    toggleCollapse={toggleSheetMusicCollapse}
+                />
+
                 <div className="piano-container">
                     {isLoading ? (
                         <div className="loading-status">

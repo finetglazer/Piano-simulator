@@ -1,5 +1,5 @@
-// Electron main process file
-const { app, BrowserWindow } = require('electron');
+// Electron main process file with added PDF selection dialog
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
@@ -11,8 +11,8 @@ function createWindow() {
         width: 1200,
         height: 800,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
+            nodeIntegration: false,
+            contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
         }
     });
@@ -33,6 +33,27 @@ function createWindow() {
         mainWindow = null;
     });
 }
+
+// Add file selection dialog handler
+ipcMain.handle('select-pdf', async () => {
+    if (!mainWindow) {
+        return null;
+    }
+
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+        title: 'Select Sheet Music PDF',
+        properties: ['openFile'],
+        filters: [
+            { name: 'PDF Files', extensions: ['pdf'] }
+        ]
+    });
+
+    if (canceled || filePaths.length === 0) {
+        return null;
+    }
+
+    return filePaths[0];
+});
 
 app.on('ready', createWindow);
 

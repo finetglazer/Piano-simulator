@@ -1,0 +1,209 @@
+.sheet-music-viewer {
+    width: 100%;
+    height: 350px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+
+.dark-theme .sheet-music-viewer {
+    background-color: #222;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.sheet-music-collapsed {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 10px;
+}
+
+.dark-theme .sheet-music-collapsed {
+    background-color: #222;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.expand-button, .collapse-button {
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.expand-button:hover, .collapse-button:hover {
+    background-color: #3a5a8c;
+}
+
+.sheet-music-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.dark-theme .sheet-music-controls {
+    border-bottom-color: #444;
+}
+
+.file-controls, .navigation-controls, .zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sheet-music-controls button {
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.2s;
+}
+
+.dark-theme .sheet-music-controls button {
+    background-color: #333;
+    border-color: #444;
+    color: #ddd;
+}
+
+.sheet-music-controls button:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.dark-theme .sheet-music-controls button:hover:not(:disabled) {
+    background-color: #444;
+}
+
+.sheet-music-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.sheet-music-content {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    position: relative;
+}
+
+.dark-theme .sheet-music-content {
+    background-color: #333;
+}
+
+.sheet-music-content .react-pdf__Document {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sheet-music-content .react-pdf__Page {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+}
+
+.dark-theme .sheet-music-content .react-pdf__Page {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.sheet-music-content .react-pdf__Page__canvas {
+    border-radius: 2px;
+}
+
+.loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    font-size: 16px;
+    color: #666;
+}
+
+.dark-theme .loading-indicator {
+    color: #aaa;
+}
+
+.error-message {
+    padding: 20px;
+    color: #d32f2f;
+    text-align: center;
+    border: 1px solid #ffcdd2;
+    border-radius: 4px;
+    background-color: #ffebee;
+    margin: 20px;
+}
+
+.dark-theme .error-message {
+    color: #f48fb1;
+    border-color: #c2185b;
+    background-color: rgba(194, 24, 91, 0.2);
+}
+
+.no-pdf-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    font-size: 16px;
+    color: #666;
+    text-align: center;
+    padding: 20px;
+}
+
+.dark-theme .no-pdf-message {
+    color: #aaa;
+}
+
+.sheet-music-footer {
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+    border-top: 1px solid #eee;
+}
+
+.dark-theme .sheet-music-footer {
+    color: #999;
+    border-top-color: #444;
+}
+
+.keyboard-hint {
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sheet-music-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .file-controls, .navigation-controls, .zoom-controls {
+        justify-content: center;
+    }
+
+    .sheet-music-viewer {
+        height: 300px;
+    }
+}
