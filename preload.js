@@ -1,4 +1,4 @@
-// Enhanced preload.js with comprehensive PDF handling capabilities
+// Cleaned preload.js - Removed external opening functionality to prevent IPC errors
 const { contextBridge, ipcRenderer } = require('electron');
 
 // Expose protected methods for PDF handling and file management
@@ -11,12 +11,6 @@ contextBridge.exposeInMainWorld('electron', {
 
     // Read a file and return its contents as a base64 string
     readFile: (path) => ipcRenderer.invoke('read-file', path),
-
-    // Open file in external application (like Adobe Reader)
-    openExternal: (path) => ipcRenderer.invoke('open-external', path),
-
-    // Show file in folder/explorer
-    showInFolder: (path) => ipcRenderer.invoke('show-in-folder', path),
 
     // Get detailed file information
     getFileInfo: (path) => ipcRenderer.invoke('get-file-info', path),
@@ -65,7 +59,7 @@ contextBridge.exposeInMainWorld('electron', {
 
 // Enhanced DOM content loaded handler
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('Enhanced preload script loaded successfully');
+    console.log('Cleaned preload script loaded successfully');
 
     // Replace version info in the UI if present
     const appVersion = document.querySelector('.app-version');
@@ -89,13 +83,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 const data = await window.electron.readFile(filePath);
                 console.log('File read result:', data ? `${data.length} bytes` : 'null');
                 return data;
-            },
-
-            testExternalOpen: async (filePath) => {
-                console.log('Testing external open:', filePath);
-                const result = await window.electron.openExternal(filePath);
-                console.log('External open result:', result);
-                return result;
             }
         };
 

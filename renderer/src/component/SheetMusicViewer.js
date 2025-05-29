@@ -1,4 +1,4 @@
-// Enhanced SheetMusicViewer.js - Fixed PDF loading with better error handling
+// Fixed SheetMusicViewer.js - Removed external opening feature to prevent IPC errors
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './SheetMusicViewer.css';
 
@@ -123,30 +123,12 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
                 setDebugInfo(`Method 3 failed: ${err.message}`);
             }
 
-            // Method 4: Open in external viewer
-            try {
-                setDebugInfo('Trying Method 4: External viewer...');
-
-                const opened = await window.electron.openExternal(filePath);
-                if (opened) {
-                    setError(`PDF opened in external viewer: ${filePath.split(/[/\\]/).pop()}`);
-                    setDebugInfo('Method 4 Success: External viewer opened');
-                    return true;
-                }
-
-                throw new Error('Failed to open in external viewer');
-
-            } catch (err) {
-                console.log('❌ Method 4 failed:', err.message);
-                setDebugInfo(`Method 4 failed: ${err.message}`);
-            }
-
-            // All methods failed
-            throw new Error('All PDF loading methods failed');
+            // All methods failed - provide helpful error message
+            throw new Error('Unable to display PDF in browser. Please try opening the file directly in a PDF viewer.');
 
         } catch (err) {
             console.error('💥 PDF loading completely failed:', err);
-            setError(`Failed to load PDF: ${err.message}\n\nFile: ${filePath}`);
+            setError(`Failed to load PDF: ${err.message}\n\nFile: ${filePath}\n\nTip: You can manually open this file in your preferred PDF viewer.`);
             setDebugInfo(`All methods failed: ${err.message}`);
         } finally {
             setIsLoading(false);
@@ -166,7 +148,7 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
             console.log('Attempting to reload last PDF:', savedFile);
             loadPdfFile(savedFile);
         }
-    }, [loadPdfFile]); // Added loadPdfFile to dependency array
+    }, [loadPdfFile]);
 
     // Save settings when they change
     useEffect(() => {
@@ -242,26 +224,13 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
 
     // Try different display methods
     const tryDifferentMethod = () => {
-        const methods = ['iframe', 'embed', 'object', 'external'];
+        const methods = ['iframe', 'embed', 'object'];
         const currentIndex = methods.indexOf(displayMethod);
         const nextMethod = methods[(currentIndex + 1) % methods.length];
 
         console.log('🔄 Switching display method:', displayMethod, '→', nextMethod);
         setDisplayMethod(nextMethod);
         setDebugInfo(`Switched to method: ${nextMethod}`);
-
-        if (nextMethod === 'external' && pdfFile) {
-            window.electron.openExternal(pdfFile);
-            setError('PDF opened in external viewer.');
-        }
-    };
-
-    // Open in external viewer
-    const openExternal = () => {
-        if (pdfFile && window.electron) {
-            window.electron.openExternal(pdfFile);
-            setError('PDF opened in external viewer.');
-        }
     };
 
     // Show debug info
@@ -312,7 +281,7 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isCollapsed, pdfData, currentPage, totalPages, zoom, goToNextPage, goToPrevPage, zoomIn, zoomOut]); // Added missing dependencies
+    }, [isCollapsed, pdfData, currentPage, totalPages, zoom, goToNextPage, goToPrevPage, zoomIn, zoomOut]);
 
     // Cleanup blob URLs
     useEffect(() => {
@@ -351,7 +320,7 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
             },
             onError: (e) => {
                 console.log('❌ PDF loading error:', e);
-                setError(`PDF display error with method: ${displayMethod}`);
+                setError(`PDF display error. Try a different display method or open the file manually in a PDF viewer.`);
             }
         };
 
@@ -385,12 +354,7 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
                         style={{ border: 'none' }}
                         {...commonProps}
                     >
-                        <p>
-                            Your browser cannot display PDF files.
-                            <button onClick={openExternal} style={{ marginLeft: '10px' }}>
-                                Open Externally
-                            </button>
-                        </p>
+                        <p>Your browser cannot display PDF files.</p>
                     </object>
                 );
 
@@ -399,8 +363,13 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
                     <div className="pdf-fallback">
                         <p>PDF cannot be displayed in browser.</p>
                         <button onClick={tryDifferentMethod}>Try Different Method</button>
-                        <button onClick={openExternal}>Open in External Viewer</button>
-                        {pdfFile && <p>File: {pdfFile}</p>}
+                        {pdfFile && (
+                            <p>
+                                File: {pdfFile}
+                                <br />
+                                <small>You can manually open this file in your preferred PDF viewer.</small>
+                            </p>
+                        )}
                     </div>
                 );
         }
@@ -420,9 +389,6 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
                         <>
                             <button onClick={tryDifferentMethod} className="method-button" title="Try different display method">
                                 Method: {displayMethod}
-                            </button>
-                            <button onClick={openExternal} title="Open in external PDF viewer">
-                                External
                             </button>
                             <button onClick={showDebugInfo} title="Show debug information" style={{fontSize: '11px', padding: '4px 6px'}}>
                                 Debug
@@ -460,9 +426,6 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
                         {pdfData && (
                             <div style={{ marginTop: '10px' }}>
                                 <button onClick={tryDifferentMethod}>Try Different Method</button>
-                                <button onClick={openExternal} style={{ marginLeft: '10px' }}>
-                                    Open Externally
-                                </button>
                             </div>
                         )}
                     </div>

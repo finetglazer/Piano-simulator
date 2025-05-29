@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain, protocol, shell } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, protocol } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const isDev = require('electron-is-dev');
@@ -109,29 +109,6 @@ ipcMain.handle('read-file', async (event, filePath) => {
     }
 });
 
-// Handler to open file in external application
-ipcMain.handle('open-external', async (event, filePath) => {
-    try {
-        console.log('Opening external file:', filePath);
-        await shell.openPath(filePath);
-        return true;
-    } catch (error) {
-        console.error('Error opening external file:', error);
-        return false;
-    }
-});
-
-// Handler to show file in folder
-ipcMain.handle('show-in-folder', async (event, filePath) => {
-    try {
-        shell.showItemInFolder(filePath);
-        return true;
-    } catch (error) {
-        console.error('Error showing file in folder:', error);
-        return false;
-    }
-});
-
 // Handler to get file info
 ipcMain.handle('get-file-info', async (event, filePath) => {
     try {
@@ -187,6 +164,26 @@ app.on('ready', () => {
         }
     });
 
+    // Register a custom protocol for PDF handling if needed
+    protocol.registerFileProtocol('pdf-viewer', (request, callback) => {
+        const url = request.url.replace('pdf-viewer://', '');
+        const filePath = decodeURIComponent(url);
+
+        console.log('PDF viewer protocol request:', filePath);
+
+        try {
+            if (fs.existsSync(filePath) && path.extname(filePath).toLowerCase() === '.pdf') {
+                callback(filePath);
+            } else {
+                console.error('PDF file not found or invalid:', filePath);
+                callback(null);
+            }
+        } catch (error) {
+            console.error('Error in PDF protocol:', error);
+            callback(null);
+        }
+    });
+
     createWindow();
 });
 
@@ -207,31 +204,6 @@ app.on('web-contents-created', (event, contents) => {
     contents.on('new-window', (event, navigationUrl) => {
         // Prevent opening new windows
         event.preventDefault();
-
-        // Optionally open in external browser
-        shell.openExternal(navigationUrl);
-    });
-});
-
-// Handle protocol for PDF files specifically
-app.on('ready', () => {
-    // Register a custom protocol for PDF handling if needed
-    protocol.registerFileProtocol('pdf-viewer', (request, callback) => {
-        const url = request.url.replace('pdf-viewer://', '');
-        const filePath = decodeURIComponent(url);
-
-        console.log('PDF viewer protocol request:', filePath);
-
-        try {
-            if (fs.existsSync(filePath) && path.extname(filePath).toLowerCase() === '.pdf') {
-                callback(filePath);
-            } else {
-                console.error('PDF file not found or invalid:', filePath);
-                callback(null);
-            }
-        } catch (error) {
-            console.error('Error in PDF protocol:', error);
-            callback(null);
-        }
+        console.log('Blocked new window creation for:', navigationUrl);
     });
 });
