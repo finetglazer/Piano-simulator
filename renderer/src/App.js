@@ -150,7 +150,7 @@ function App() {
                 pianoEngine.dispose();
             }
         };
-    }, [appSettings]);
+    }, [appSettings, pianoEngine]); // Added pianoEngine to dependency array
 
     // Handle settings changes
     const handleSettingsChange = (newSettings) => {

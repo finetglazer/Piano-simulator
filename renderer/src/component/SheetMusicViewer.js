@@ -1,5 +1,5 @@
 // Enhanced SheetMusicViewer.js - Fixed PDF loading with better error handling
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './SheetMusicViewer.css';
 
 const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
@@ -16,32 +16,8 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
     const pdfContainerRef = useRef(null);
     const iframeRef = useRef(null);
 
-    // Load last session info
-    useEffect(() => {
-        const savedZoom = localStorage.getItem('sheetMusicZoom');
-        if (savedZoom) setZoom(parseInt(savedZoom, 10));
-
-        const savedPage = localStorage.getItem('sheetMusicPage');
-        if (savedPage) setCurrentPage(parseInt(savedPage, 10));
-
-        const savedFile = localStorage.getItem('lastPdfFile');
-        if (savedFile) {
-            console.log('Attempting to reload last PDF:', savedFile);
-            loadPdfFile(savedFile);
-        }
-    }, []);
-
-    // Save settings when they change
-    useEffect(() => {
-        localStorage.setItem('sheetMusicZoom', zoom.toString());
-        localStorage.setItem('sheetMusicPage', currentPage.toString());
-        if (pdfFile) {
-            localStorage.setItem('lastPdfFile', pdfFile);
-        }
-    }, [zoom, currentPage, pdfFile]);
-
     // Enhanced PDF loading with comprehensive error handling
-    const loadPdfFile = async (filePath) => {
+    const loadPdfFile = useCallback(async (filePath) => {
         try {
             setIsLoading(true);
             setError(null);
@@ -175,7 +151,31 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [pdfUrl]);
+
+    // Load last session info
+    useEffect(() => {
+        const savedZoom = localStorage.getItem('sheetMusicZoom');
+        if (savedZoom) setZoom(parseInt(savedZoom, 10));
+
+        const savedPage = localStorage.getItem('sheetMusicPage');
+        if (savedPage) setCurrentPage(parseInt(savedPage, 10));
+
+        const savedFile = localStorage.getItem('lastPdfFile');
+        if (savedFile) {
+            console.log('Attempting to reload last PDF:', savedFile);
+            loadPdfFile(savedFile);
+        }
+    }, [loadPdfFile]); // Added loadPdfFile to dependency array
+
+    // Save settings when they change
+    useEffect(() => {
+        localStorage.setItem('sheetMusicZoom', zoom.toString());
+        localStorage.setItem('sheetMusicPage', currentPage.toString());
+        if (pdfFile) {
+            localStorage.setItem('lastPdfFile', pdfFile);
+        }
+    }, [zoom, currentPage, pdfFile]);
 
     // Handle PDF file selection
     const handleFileSelect = async () => {
@@ -223,21 +223,21 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
         }
     };
 
-    // Navigation functions
-    const goToNextPage = () => {
+    // Navigation functions wrapped in useCallback
+    const goToNextPage = useCallback(() => {
         if (currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
         }
-    };
+    }, [currentPage, totalPages]);
 
-    const goToPrevPage = () => {
+    const goToPrevPage = useCallback(() => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
         }
-    };
+    }, [currentPage]);
 
-    const zoomIn = () => setZoom(Math.min(zoom + 10, 200));
-    const zoomOut = () => setZoom(Math.max(zoom - 10, 50));
+    const zoomIn = useCallback(() => setZoom(Math.min(zoom + 10, 200)), [zoom]);
+    const zoomOut = useCallback(() => setZoom(Math.max(zoom - 10, 50)), [zoom]);
     const resetZoom = () => setZoom(100);
 
     // Try different display methods
@@ -312,7 +312,7 @@ const SheetMusicViewer = ({ isCollapsed, toggleCollapse }) => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isCollapsed, pdfData, currentPage, totalPages, zoom]);
+    }, [isCollapsed, pdfData, currentPage, totalPages, zoom, goToNextPage, goToPrevPage, zoomIn, zoomOut]); // Added missing dependencies
 
     // Cleanup blob URLs
     useEffect(() => {
