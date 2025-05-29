@@ -22,8 +22,16 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "react-build": "cd renderer && npm run build",
+    "electron": "electron .",
+    "pack": "electron-builder",
+    "dist": "electron-builder",
+    "dist-win": "electron-builder --win",
+    "dist-mac": "electron-builder --mac",
+    "dist-linux": "electron-builder --linux"
   },
+
   "eslintConfig": {
     "extends": [
       "react-app",
