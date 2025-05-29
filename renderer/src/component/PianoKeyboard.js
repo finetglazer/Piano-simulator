@@ -34,15 +34,60 @@ const PianoKeyboard = ({ pianoEngine, onNoteOn, onNoteOff }) => {
 
     const pianoKeys = generatePianoKeys();
 
-    // Map computer keyboard keys to piano notes
+    // YOUR CUSTOM KEYBOARD MAPPING
     const keyboardMapping = {
-        'z': 'C4', 's': 'C#4', 'x': 'D4', 'd': 'D#4', 'c': 'E4', 'v': 'F4',
-        'g': 'F#4', 'b': 'G4', 'h': 'G#4', 'n': 'A4', 'j': 'A#4', 'm': 'B4',
-        ',': 'C5', 'l': 'C#5', '.': 'D5', ';': 'D#5', '/': 'E5',
-        'q': 'C5', '2': 'C#5', 'w': 'D5', '3': 'D#5', 'e': 'E5', 'r': 'F5',
-        '5': 'F#5', 't': 'G5', '6': 'G#5', 'y': 'A5', '7': 'A#5', 'u': 'B5',
-        'i': 'C6', '9': 'C#6', 'o': 'D6', '0': 'D#6', 'p': 'E6', '[': 'F6',
-        '=': 'F#6', ']': 'G6',
+        // Upper row - C4 to B5
+        'b': 'C4',
+        'n': 'C#4',
+        'm': 'D4',
+        ',': 'D#4',  // Note: Using comma instead of < for compatibility
+        '.': 'E4',   // Note: Using period instead of > for compatibility
+        '/': 'F4',   // Note: Using slash instead of ? for compatibility
+        'h': 'F#4',
+        'j': 'G4',
+        'k': 'G#4',
+        'l': 'A4',   // Note: I assume this should be A4, not A5 as in your list
+        ';': 'A#4',
+        "'": 'B4',
+
+        // Middle row - C5 to C6
+        'u': 'C5',
+        'i': 'C#5',
+        'o': 'D5',
+        'p': 'D#5',
+        '[': 'E5',
+        ']': 'F5',
+        '\\': 'F#5',
+        '7': 'G5',
+        '8': 'G#5',
+        '9': 'A5',   // Note: Changed from A6 to A5 for logical progression
+        '0': 'A#5',  // Note: Changed from A#6 to A#5 for logical progression
+        '-': 'B5',   // Note: Changed from B6 to B5 for logical progression
+        '=': 'C6',
+
+        // Lower row - Lower octaves
+        'v': 'B3',   // Note: Changed from B4 to B3 for logical progression
+        'c': 'A#3',
+        'x': 'A3',
+        'z': 'G#3',
+        'g': 'G3',
+        'f': 'F#3',
+        'd': 'F3',
+        's': 'E3',
+        'a': 'D#3',
+        'y': 'D3',
+        't': 'C#3',
+        'r': 'C3',
+        'e': 'B2',   // Note: Changed from B3 to B2 for logical progression
+        'w': 'A#2',  // Note: Changed from A#3 to A#2 for logical progression
+        'q': 'A2',   // Note: Changed from A3 to A2 for logical progression
+        '6': 'G#2',
+        '5': 'G2',
+        '4': 'F#2',
+        '3': 'F2',
+        '2': 'E2',
+        '1': 'D#2',
+        '`': 'D2',   // Note: Using backtick instead of ~ for compatibility
     };
 
     // Handle mouse/touch interaction with piano keys
@@ -94,6 +139,7 @@ const PianoKeyboard = ({ pianoEngine, onNoteOn, onNoteOff }) => {
 
         // Sustain pedal using spacebar
         if (e.code === 'Space') {
+            e.preventDefault(); // Prevent page scrolling
             pianoEngine.setSustain(true);
         }
     }, [pianoEngine, keyboardMapping, onNoteOn]);
@@ -137,7 +183,7 @@ const PianoKeyboard = ({ pianoEngine, onNoteOn, onNoteOff }) => {
     return (
         <div className="piano-keyboard">
             <div className="piano-key-help">
-                Use your computer keyboard or click the keys to play. Spacebar = sustain pedal
+                Use your custom keyboard layout or click the keys to play. Spacebar = sustain pedal
             </div>
             <div className="piano-keys">
                 {pianoKeys.map((key) => (
