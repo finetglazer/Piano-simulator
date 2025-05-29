@@ -1,8 +1,10 @@
-/* Create this file in renderer/src/component/SheetMusicViewer.css */
+/* Fixed SheetMusicViewer.css - Resolves height collapse issue */
 
 .sheet-music-viewer {
     width: 100%;
-    height: 350px;
+    min-height: 350px; /* CRITICAL: Set minimum height */
+    height: 350px; /* CRITICAL: Set explicit height */
+    max-height: 500px; /* Prevent it from growing too large */
     display: flex;
     flex-direction: column;
     background-color: white;
@@ -10,6 +12,9 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     transition: height 0.3s ease;
+    /* CRITICAL: Ensure it takes space */
+    flex-shrink: 0;
+    position: relative;
 }
 
 .dark-theme .sheet-music-viewer {
@@ -26,6 +31,10 @@
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     margin-bottom: 10px;
+    /* CRITICAL: Set explicit height for collapsed state */
+    height: 50px;
+    min-height: 50px;
+    align-items: center;
 }
 
 .dark-theme .sheet-music-collapsed {
@@ -56,6 +65,11 @@
     border-bottom: 1px solid #eee;
     flex-wrap: wrap;
     gap: 10px;
+    /* CRITICAL: Set explicit height for controls */
+    min-height: 60px;
+    height: auto;
+    flex-shrink: 0; /* Prevent shrinking */
+    background-color: inherit;
 }
 
 .dark-theme .sheet-music-controls {
@@ -65,7 +79,8 @@
 .file-controls, .navigation-controls, .zoom-controls {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .sheet-music-controls button {
@@ -77,6 +92,7 @@
     cursor: pointer;
     color: #333;
     transition: background-color 0.2s;
+    white-space: nowrap; /* Prevent text wrapping */
 }
 
 .dark-theme .sheet-music-controls button {
@@ -98,37 +114,98 @@
     cursor: not-allowed;
 }
 
+/* Special styling for method button */
+.method-button {
+    background-color: #2196f3 !important;
+    color: white !important;
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+}
+
+.method-button:hover:not(:disabled) {
+    background-color: #1976d2 !important;
+}
+
 .sheet-music-content {
+    /* CRITICAL: This should take remaining space */
     flex: 1;
-    overflow: auto;
+    min-height: 200px; /* CRITICAL: Minimum content height */
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 20px;
+    padding: 0;
     position: relative;
+    background-color: #f5f5f5;
 }
 
 .dark-theme .sheet-music-content {
     background-color: #333;
 }
 
-.sheet-music-content .react-pdf__Document {
+/* PDF Container with better scaling */
+.pdf-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: auto;
+    padding: 10px;
+    box-sizing: border-box;
+    /* CRITICAL: Ensure minimum size */
+    min-height: 200px;
+}
+
+.pdf-container iframe,
+.pdf-container embed,
+.pdf-container object {
+    width: 100%;
+    height: 100%;
+    min-height: 300px; /* CRITICAL: Minimum height for PDF display */
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.dark-theme .pdf-container iframe,
+.dark-theme .pdf-container embed,
+.dark-theme .pdf-container object {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Fallback content styling */
+.pdf-fallback {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px; /* CRITICAL: Minimum height */
+    text-align: center;
+    color: #666;
+    gap: 15px;
+    padding: 20px;
 }
 
-.sheet-music-content .react-pdf__Page {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
-    margin-bottom: 10px;
+.dark-theme .pdf-fallback {
+    color: #aaa;
 }
 
-.dark-theme .sheet-music-content .react-pdf__Page {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+.pdf-fallback button {
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.sheet-music-content .react-pdf__Page__canvas {
-    border-radius: 2px;
+.pdf-fallback button:hover {
+    background-color: #f57c00;
 }
 
 .loading-indicator {
@@ -137,12 +214,37 @@
     align-items: center;
     height: 100%;
     width: 100%;
+    min-height: 200px; /* CRITICAL: Minimum height */
     font-size: 16px;
     color: #666;
+    position: relative;
 }
 
 .dark-theme .loading-indicator {
     color: #aaa;
+}
+
+/* Enhanced loading animation */
+.loading-indicator::after {
+    content: "";
+    width: 30px;
+    height: 30px;
+    margin-left: 15px;
+    border-radius: 50%;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #4a6fa5;
+    animation: spin 1s infinite linear;
+}
+
+.dark-theme .loading-indicator::after {
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #4a6fa5;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .error-message {
@@ -153,6 +255,13 @@
     border-radius: 4px;
     background-color: #ffebee;
     margin: 20px;
+    line-height: 1.5;
+    min-height: 60px; /* CRITICAL: Minimum height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
 .dark-theme .error-message {
@@ -161,20 +270,41 @@
     background-color: rgba(194, 24, 91, 0.2);
 }
 
+.error-message button {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.error-message button:hover {
+    background-color: #1976d2;
+}
+
 .no-pdf-message {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
     width: 100%;
+    min-height: 200px; /* CRITICAL: Minimum height */
     font-size: 16px;
     color: #666;
     text-align: center;
     padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 8px;
+    margin: 20px;
+    box-sizing: border-box;
 }
 
 .dark-theme .no-pdf-message {
     color: #aaa;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 }
 
 .sheet-music-footer {
@@ -183,6 +313,16 @@
     color: #777;
     text-align: center;
     border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    /* CRITICAL: Set explicit height for footer */
+    min-height: 35px;
+    height: auto;
+    flex-shrink: 0; /* Prevent shrinking */
+    background-color: inherit;
 }
 
 .dark-theme .sheet-music-footer {
@@ -194,18 +334,155 @@
     font-style: italic;
 }
 
-/* Responsive adjustments */
+.method-hint {
+    font-size: 11px;
+    color: #2196f3;
+    font-weight: 500;
+}
+
+.dark-theme .method-hint {
+    color: #64b5f6;
+}
+
+/* Better scrollbar styling for PDF container */
+.pdf-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.pdf-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.pdf-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.pdf-container::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+.dark-theme .pdf-container::-webkit-scrollbar-track {
+    background: #333;
+}
+
+.dark-theme .pdf-container::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+.dark-theme .pdf-container::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* CRITICAL: Responsive adjustments with proper heights */
 @media (max-width: 768px) {
     .sheet-music-controls {
         flex-direction: column;
         align-items: stretch;
+        padding: 8px;
+        min-height: 80px; /* Taller on mobile due to stacking */
     }
 
     .file-controls, .navigation-controls, .zoom-controls {
         justify-content: center;
+        flex-wrap: wrap;
     }
 
     .sheet-music-viewer {
+        min-height: 300px;
         height: 300px;
     }
+
+    .pdf-container {
+        padding: 5px;
+        min-height: 180px;
+    }
+
+    .sheet-music-footer {
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
+        min-height: 50px;
+    }
+
+    .loading-indicator,
+    .no-pdf-message,
+    .pdf-fallback {
+        min-height: 150px;
+    }
 }
+
+@media (max-height: 600px) {
+    .sheet-music-viewer {
+        min-height: 250px;
+        height: 250px;
+    }
+
+    .pdf-container iframe,
+    .pdf-container embed,
+    .pdf-container object {
+        min-height: 150px;
+    }
+}
+
+/* CRITICAL: Animation for smooth transitions */
+.sheet-music-viewer,
+.pdf-container,
+.error-message,
+.loading-indicator {
+    transition: all 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.sheet-music-controls button:focus {
+    outline: 2px solid #4a6fa5;
+    outline-offset: 2px;
+}
+
+.dark-theme .sheet-music-controls button:focus {
+    outline-color: #64b5f6;
+}
+
+/* CRITICAL: Print styles */
+@media print {
+    .sheet-music-controls,
+    .sheet-music-footer {
+        display: none;
+    }
+
+    .sheet-music-viewer {
+        height: auto !important;
+        min-height: auto !important;
+        box-shadow: none;
+    }
+
+    .pdf-container {
+        padding: 0;
+        min-height: auto;
+    }
+}
+
+/* CRITICAL: Flexbox fixes for parent containers */
+/* These styles should be added to your main App.css if not already present */
+
+/*
+Add this to your App.css main section if the sheet music container is still collapsing:
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+    overflow-y: auto;
+    min-height: 0; // Important for flex children
+}
+
+// Ensure sheet music gets proper space allocation
+.sheet-music-container {
+    flex: 0 0 auto; // Don't grow or shrink, use content size
+    min-height: 350px;
+}
+*/

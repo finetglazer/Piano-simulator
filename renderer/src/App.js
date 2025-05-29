@@ -190,6 +190,10 @@ function App() {
         setIsSheetMusicCollapsed(!isSheetMusicCollapsed);
     };
 
+    // Quick fix for App.js - Ensure SheetMusicViewer gets proper container
+
+// In your App.js, make sure the SheetMusicViewer is wrapped like this:
+
     return (
         <div className={`App ${theme === 'dark' ? 'dark-theme' : ''}`} ref={appContainerRef}>
             <header className="App-header">
@@ -212,11 +216,18 @@ function App() {
                 </div>
             </header>
             <main>
-                {/* Sheet Music Viewer Component */}
-                <SheetMusicViewer
-                    isCollapsed={isSheetMusicCollapsed}
-                    toggleCollapse={toggleSheetMusicCollapse}
-                />
+                {/* CRITICAL: Wrap SheetMusicViewer in a container with explicit styling */}
+                <div className="sheet-music-container" style={{
+                    minHeight: '350px',
+                    height: '350px',
+                    flexShrink: 0,
+                    width: '100%'
+                }}>
+                    <SheetMusicViewer
+                        isCollapsed={isSheetMusicCollapsed}
+                        toggleCollapse={toggleSheetMusicCollapse}
+                    />
+                </div>
 
                 <div className="piano-container">
                     {isLoading ? (
@@ -232,11 +243,13 @@ function App() {
                         />
                     )}
                 </div>
+
                 <div className="controls-container">
                     <RecordingControls
                         disabled={isLoading || !samplesLoaded}
                     />
                 </div>
+
                 <div className="visualization-container">
                     <NoteVisualizer
                         activeNotes={activeNotes}
