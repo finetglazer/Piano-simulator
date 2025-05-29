@@ -16,7 +16,8 @@
     "postinstall": "electron-builder install-app-deps",
     "clean": "rimraf dist renderer/build",
     "test": "cd renderer && npm test",
-    "prepare-resources": "node scripts/prepare-resources.js"
+    "prepare-resources": "node scripts/prepare-resources.js",
+    "dist": "npm run react-build && electron-builder --config electron-builder.js"
   },
   "build": {
     "appId": "com.pianosimulator.app",
